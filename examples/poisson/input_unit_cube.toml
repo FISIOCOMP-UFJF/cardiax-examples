@@ -1,0 +1,40 @@
+# ============================================================
+#  Poisson solver input
+# ============================================================
+[problem]
+model = "poisson"
+#mesh  = "unit_cube_hex04.xml"
+#mesh  = "unit_cube_hex08.xml"
+#mesh  = "unit_cube_hex16.xml"
+mesh  = "unit_cube_hex32.xml"
+
+# ------------------------------------------------------------
+#  Numerics: discretization + linear solver
+# ------------------------------------------------------------
+[numerics]
+linear_solver  = "cg"     # cg | gmres | direct  (KSP type)
+preconditioner = "ilu"    # jacobi | ilu | hypre ...
+rel_tol        = 1e-8
+abs_tol        = 1e-12
+max_iter       = 1000
+
+# ------------------------------------------------------------
+#  Physical: -div(k grad u) = f -> PDE coefficients and source
+# ------------------------------------------------------------
+[physical]
+conductivity = 1.0                             # k  (scalar; make it a tensor block if needed)
+source       = "3*pi^2*sin(pi*x)*sin(pi*y)*sin(pi*z)"   # f
+
+[[physical.dirichlet]]
+marker = 27
+value = 0.0
+
+[validation]
+exact = "sin(pi*x)*sin(pi*y)*sin(pi*z)" 
+
+# ------------------------------------------------------------
+#  Output
+# ------------------------------------------------------------
+[output]
+filename  = "output_poisson_unit_cube"
+format    = "hdf5"  # hdf5 (+xdmf) | vtk
