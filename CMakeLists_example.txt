@@ -1,0 +1,49 @@
+cmake_minimum_required(VERSION 3.12)
+project(PaperValidation C CXX) 
+
+if(DEFINED ENV{CONDA_PREFIX})
+    set(PREFIX "$ENV{CONDA_PREFIX}")
+    set(CMAKE_C_COMPILER "${PREFIX}/bin/mpicc" CACHE FILEPATH "" FORCE)
+    set(CMAKE_CXX_COMPILER "${PREFIX}/bin/mpicxx" CACHE FILEPATH "" FORCE)
+endif()
+
+############### EDIT THIS THREE VARIABLES #########################
+set(CARDIAX_ROOT "/home/lucas/Documentos/cardiax_depois")
+set(EXECUTABLE_NAME "meu_experimento")
+set(EXAMPLE_SOURCE_CODE "main.cpp")
+###################################################################
+
+set(CARDIAX_BUILD "${CARDIAX_ROOT}/build")
+
+add_executable(${EXECUTABLE_NAME} ${EXAMPLE_SOURCE_CODE})
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${CARDIAX_ROOT}/src)
+
+target_link_directories(${EXECUTABLE_NAME} PRIVATE 
+    ${CARDIAX_BUILD}/src/cardiac
+    ${CARDIAX_BUILD}/src/pdes
+    ${CARDIAX_BUILD}/src/linalg
+    ${CARDIAX_BUILD}/src/mesh
+    ${CARDIAX_BUILD}/src/fem
+    ${CARDIAX_BUILD}/src/odes
+    ${CARDIAX_BUILD}/src/nls
+    ${CARDIAX_BUILD}/src/util
+)
+
+find_package(HDF5 REQUIRED)
+
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
+    -Wl,--start-group
+    Cardiac PDE LinAlg Mesh FEM ODE NLS Util
+    -Wl,--end-group
+    "${PREFIX}/lib/libpetsc.so"
+    armadillo
+    ${HDF5_LIBRARIES}    
+    "${PREFIX}/lib/libflapack.a"  
+    "${PREFIX}/lib/libfblas.a"    
+    "${PREFIX}/lib/libgfortran.so" 
+    "${PREFIX}/lib/libquadmath.so" 
+)
+
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES 
+    BUILD_RPATH "${PREFIX}/lib"
+)
