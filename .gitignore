@@ -19,3 +19,6 @@ compile_commands.json
 .vscode/
 .idea/
 *.swp
+
+*.xmf
+*.h5 
