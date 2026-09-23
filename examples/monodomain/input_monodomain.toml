@@ -41,11 +41,7 @@ Cm   = 1.0                # membrane capacitance [uF/cm^2]
 #   here as conductivities sigma_f/sigma_s/sigma_n)
 # ------------------------------------------------------------
 [physical]
-conductivity_type = "TRANSVERSELY_ISOTROPIC"   # same tag as eikonal
-
-#sigma_f = 0.0001334        # fiber-direction conductivity [mS/cm]
-#sigma_s = 0.0000176        # sheet-direction conductivity
-#sigma_n = 0.0000176        # normal-direction conductivity
+conductivity_type = "transversely_isotropic"   # isotropic | transversely_isotropic | orthotropic
 
 sigma_f = 0.0001334        # fiber-direction conductivity [mS/cm]
 sigma_s = 0.0000176        # sheet-direction conductivity
