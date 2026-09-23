@@ -1,0 +1,79 @@
+# ============================================================
+#  Coupled Purkinje / Monodomain solver input
+#  Test case: 10 x 10 x 0.5 mm slab + 4-terminal Purkinje tree
+#  Units follow the mesh (micrometers); time in ms.
+# ============================================================
+
+[problem]
+model         = "coupled_purkinje"
+mesh          = "tissue_slab_10mm.xml"   # tissue: hexahedron, 5043 nodes, 3200 elements
+purkinje_mesh = "purkinje_tree.xml"      # Purkinje tree: line, 241 nodes, 240 elements
+
+# ------------------------------------------------------------
+#  Time integration (shared by tissue and Purkinje)
+# ------------------------------------------------------------
+[time]
+t_end     = 20.0     # total simulated time [ms]
+dt        = 0.05      # time step [ms]
+dt_output = 1.0       # interval between saved frames [ms]
+
+# ------------------------------------------------------------
+#  Numerics
+# ------------------------------------------------------------
+[numerics]
+ode_solver     = "ExplicitEuler"
+linear_solver  = "cg"
+preconditioner = "ilu"
+rel_tol        = 1e-8
+abs_tol        = 1e-12
+max_iter       = 1000
+maxnz          = 40
+theta          = 0.5      # 0=explicit, 0.5=CN, 1=implicit
+
+# ------------------------------------------------------------
+#  Cell model (same model for tissue and Purkinje)
+# ------------------------------------------------------------
+[cell_model]
+name = "TT2"
+Cm   = 1.0                # [uF/cm^2]
+
+# ------------------------------------------------------------
+#  Tissue conductivities (fibers along x in the mesh)
+# ------------------------------------------------------------
+[physical]
+conductivity_type = "transversely_isotropic"
+sigma_f = 0.0001334
+sigma_s = 0.0000176
+sigma_n = 0.0000176
+surface_to_volume = 0.14      # [1/um] = 1400 1/cm
+
+# ------------------------------------------------------------
+#  Purkinje-muscle junctions
+#  PMJ pairs (also listed in the <pmjs> block of purkinje_tree.xml):
+#  pk_node 138/172/206/240 <-> tissue_node 1152/1164/1172/1184
+# ------------------------------------------------------------
+[pmj]
+coupling_resistance = 1.0     # R_pmj
+region_radius       = 500.0   # [um] tissue nodes within this distance are coupled
+
+# ------------------------------------------------------------
+#  Tissue stimulus (needs Stimuli::read_toml; ignored until then)
+#  Strip along the y = 0 edge, x in [7000, 10000] um, full thickness
+# ------------------------------------------------------------
+[stimuli]
+
+purkinje = [
+  { start = 0.0,  duration = 2.0, value = -50.0, min = [4000, -2500, -300], max = [5000, 400, 300] },
+]
+
+tissue = [
+  { start = 5.0,  duration = 2.0, value = -50.0, min = [0, 0, 0], max = [500, 500, 500] },
+  #{ start = 10.0, duration = 3.0, value = -40.0, min = [4000, 4000, 0], max = [6000, 6000, 500] },
+]
+
+# ------------------------------------------------------------
+#  Output
+# ------------------------------------------------------------
+[output]
+filename = "output_coupled_purkinje"
+format   = "hdf5"

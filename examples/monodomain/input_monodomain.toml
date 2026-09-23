@@ -55,16 +55,10 @@ beta = 1400.0              # surface-to-volume ratio [1/cm]
 #  Fields map directly from the mesh <stim .../> attributes.
 #  Coordinates are in the mesh's units (micrometers here).
 # ------------------------------------------------------------
-[[stimulus]]
-start    = 0.0        # onset time [ms]         (<stim start>)
-duration = 2.0        # duration [ms]           (<stim duration>)
-value    = -50.0      # stimulus current value  (<stim value>)
-x0 = 0.0
-x1 = 1500.0
-y0 = 0.0
-y1 = 1500.0
-z0 = 0.0
-z1 = 1500.0
+[stimuli]
+tissue = [
+  { start = 0.0,  duration = 2.0, value = -50.0, min = [0, 0, 0],   max = [1500, 1500, 1500] },
+]
 
 # add more stimuli freely
 # [[stimulus]]
