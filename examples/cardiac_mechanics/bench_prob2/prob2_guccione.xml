@@ -8,7 +8,7 @@
 
     <material>Guccione</material>
     <coefficients>10, 1, 1, 1, 0, 300</coefficients>
-    <ninc>100</ninc>
+    <ninc>20</ninc>
   </parameters>
 
   <pressure>

@@ -10,11 +10,11 @@ mesh  = "mesh_eikonal_anisotropic.xml"
 #  Physical
 # ------------------------------------------------------------
 [physical]
-conductivity_type = "M_TRANSVERSE" 
+conductivity_type = "M_ISOTROPIC" 
 
 vel_f = 1.0          
 vel_s = 0.5
-vel_n = 0.3
+vel_n = 0.5
 
 # ------------------------------------------------------------
 #  Activation source
