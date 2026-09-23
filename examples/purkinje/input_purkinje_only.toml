@@ -4,10 +4,10 @@
 #  Units follow the mesh (micrometers); time in ms.
 # ============================================================
 
+# for the purkinje model (only PK) the mesh is the PK network
 [problem]
-model         = "purkinje"
-mesh = "purkinje_tree_big3d.xml"      # Purkinje tree: line, 241 nodes, 240 elements
-purkinje_mesh = "purkinje_tree_big3d.xml"      # Purkinje tree: line, 241 nodes, 240 elements
+model = "purkinje"
+mesh  = "purkinje_tree_big3d.xml"  
 
 # ------------------------------------------------------------
 #  Time integration (shared by tissue and Purkinje)
@@ -57,9 +57,8 @@ coupling_resistance = 1.0     # R_pmj
 region_radius       = 500.0   # [um] tissue nodes within this distance are coupled
 
 # ------------------------------------------------------------
-#  Tissue stimulus (needs Stimuli::read_toml; ignored until then)
-#  Strip along the y = 0 edge, x in [7000, 10000] um, full thickness
-# ------s------------------------------------------------------
+#  Tissue stimulus
+# -------------------------------------------------------------
 [stimuli]
 regions = [
   { start = 0.0,  duration = 2.0, value = -50.0, min = [4000, -2500, -4300],   max = [5000, -500, -3000] },
