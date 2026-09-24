@@ -60,8 +60,8 @@ region_radius       = 500.0   # [um] tissue nodes within this distance are coupl
 #  Tissue stimulus
 # -------------------------------------------------------------
 [stimuli]
-regions = [
-  { start = 0.0,  duration = 2.0, value = -50.0, min = [4000, -2500, -4300],   max = [5000, -500, -3000] },
+purkinje = [
+  { start = 0.0,  duration = 4.0, value = -51.0, min = [4900, -2500, -4300],   max = [5000, 100, -3000] },
   #{ start = 0.0,  duration = 2.0, value = -50.0, min = [350, -2650, -4500],   max = [4850, -4500, -3000] },
   #{ start = 0.0,  duration = 1.0, value = -80.0, min = [7000, 0, 0],    max = [10000, 500, 500] },
   #{ start = 10.0, duration = 3.0, value = -40.0, min = [4000, 4000, 0], max = [6000, 6000, 500] },
