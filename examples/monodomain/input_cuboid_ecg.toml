@@ -1,0 +1,82 @@
+# ============================================================
+#  Monodomain solver input
+# ============================================================
+
+[problem]
+model = "monodomain"
+mesh  = "cuboid_4000_ecg.xml"
+
+# ------------------------------------------------------------
+#  Time integration
+#  (new block: monodomain is time-dependent, unlike poisson/eikonal)
+# ------------------------------------------------------------
+[time]
+t_end     = 500.0     # total simulated time [ms]
+dt        = 0.05      # time step [ms]
+dt_output = 1.0       # interval between saved frames [ms]
+
+# ------------------------------------------------------------
+#  Numerics: discretization + linear solver
+#  (same names/structure as poisson's [numerics])
+# ------------------------------------------------------------
+[numerics]
+linear_solver  = "cg"     # cg | gmres | direct  (KSP type)
+preconditioner = "ilu"    # jacobi | ilu | hypre ...
+rel_tol        = 1e-8
+abs_tol        = 1e-12
+max_iter       = 1000
+theta          = 0.5      # time-integration weight (0=explicit, 0.5=CN, 1=implicit)
+
+# ------------------------------------------------------------
+#  Cell (ionic) model
+#  (new block: defines I_ion; monodomain-specific)
+# ------------------------------------------------------------
+[cell_model]
+name = "TT2"           # e.g. ToRORd | TT2 | FHN | mitchell_schaeffer
+Cm   = 1.0                # membrane capacitance [uF/cm^2]
+
+# ------------------------------------------------------------
+#  Physical: tissue conductivities
+#  (mirrors eikonal's conductivity_type + vel_f/vel_s/vel_n,
+#   here as conductivities sigma_f/sigma_s/sigma_n)
+# ------------------------------------------------------------
+[physical]
+conductivity_type = "transversely_isotropic"   # isotropic | transversely_isotropic | orthotropic
+
+sigma_f = 0.0001334        # fiber-direction conductivity [mS/cm]
+sigma_s = 0.0000176        # sheet-direction conductivity
+sigma_n = 0.0000176        # normal-direction conductivity
+
+beta = 1400.0              # surface-to-volume ratio [1/cm]
+
+# ------------------------------------------------------------
+#  Stimuli
+#  Each [[stimulus]] applies a current in a spatial box.
+#  Fields map directly from the mesh <stim .../> attributes.
+#  Coordinates are in the mesh's units (micrometers here).
+# ------------------------------------------------------------
+[stimuli]
+tissue = [
+  { start = 0.0,  duration = 4.0, value = -50.0, min = [0, 1650, 1650],   max = [500, 2350, 2350] },
+]
+#tissue = [
+#  { start = 0.0, duration = 4.0, value = -50.0, min = [1300, 1300, 1300], max = [2700, 2700, 2700] },
+#]
+
+# ------------------------------------------------------------
+#  Pseudo-ECG computation
+# ------------------------------------------------------------
+[ecg]
+sigma_b   = 20.0
+leads = [
+  { x = -4000.0, y = 2000.0, z = 2000.0 },
+  { x =  8000.0, y = 2000.0, z = 2000.0 },
+]
+
+# ------------------------------------------------------------
+#  Output
+#  (same keys as poisson: filename + format; plus optional fields)
+# ------------------------------------------------------------
+[output]
+filename = "output_monodomain"
+format   = "hdf5"     # hdf5 (+xdmf) | vtk
