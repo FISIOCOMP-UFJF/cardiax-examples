@@ -3,7 +3,7 @@
 #  Test case: 10 x 10 x 0.5 mm slab + 4-terminal Purkinje tree
 #  Units follow the mesh (micrometers); time in ms.
 # ============================================================
-
+# IMPORTANT: To solve monodomain with purkinje is necessary to use direct linear solver method.
 [problem]
 model         = "coupled_purkinje"
 mesh          = "tissue_slab_10mm.xml"   # tissue: hexahedron, 5043 nodes, 3200 elements
