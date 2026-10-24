@@ -1,1 +1,0 @@
-electromech -f mesh_no_fib_no_lat.xml

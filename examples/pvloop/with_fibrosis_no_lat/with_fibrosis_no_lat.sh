@@ -1,1 +1,0 @@
-electromech -f mesh_fibrosis_no_lat.xml
