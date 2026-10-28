@@ -6,6 +6,14 @@ filename = sys.argv[1]
 data = np.loadtxt(filename)
 plt.plot(data[:,2], data[:,1])
 
+filename2= sys.argv[2]
+data2 = np.loadtxt(filename2)
+plt.plot(data2[:,2], data2[:,1])
+
+filename3 = sys.argv[3]
+data3 = np.loadtxt(filename3)
+plt.plot(data3[:,2], data3[:,1])
+
 # plt.figure(0)
 # plt.plot(data[:,0], data[:,1], label='Plv')
 # plt.plot(data[:,0], data[:,4], label='Part')
