@@ -1,0 +1,60 @@
+# ============================================================
+#  Nonlinear elasticity solver input
+#  prob1: pressure load (following load), Guccione material
+# ============================================================
+
+[problem]
+model = "nonlinear_elasticity"
+mesh  = "prob1_guccione.xml"
+type  = "THREE_DIM"              # from <elasticity type="THREE_DIM">
+
+# ------------------------------------------------------------
+#  Material
+#  (from <parameters>: material + Guccione coefficients)
+# ------------------------------------------------------------
+[material]
+name         = "Guccione"
+coefficients = [2.0, 8.0, 2.0, 4.0, 0.0, 70.0]  # <coefficients>2, 8, 2, 4, 0, 70</coefficients>
+
+# ------------------------------------------------------------
+#  Load stepping
+#  (from <ninc>: number of load increments for the Newton solver)
+# ------------------------------------------------------------
+[solver]
+n_increments = 10                     # <ninc>10</ninc>
+
+# Newton / linear solver controls (defaults; add real knobs as needed)
+newton_rel_tol  = 1e-8
+newton_max_iter = 50
+
+# PETSc options 
+[solver.petsc]
+ksp_type   = "preonly"
+pc_type    = "lu"
+ksp_rtol   = 1e-8
+
+# ------------------------------------------------------------
+#  Applied pressure (following / deformation-dependent load)
+#  Identifies the surface marker and the pressure value. From:
+#     <pressure><node id="1" marker="11" value="-0.004" /></pressure>
+#
+#  NOTE: prescribed (Dirichlet) displacement stays in the mesh XML,
+#  since it depends on individual node ids.
+# ------------------------------------------------------------
+[[pressure]]
+marker = 11
+value  = -0.004
+
+# ------------------------------------------------------------
+#  Fibers
+#  prob1 uses element_data type="fiber_isotropic"
+# ------------------------------------------------------------
+[fibers]
+type = "fiber_isotropic"
+
+# ------------------------------------------------------------
+#  Output
+# ------------------------------------------------------------
+[output]
+filename = "output_prob1_guccione"
+format   = "hdf5"       # hdf5 (+xdmf) | vtk
