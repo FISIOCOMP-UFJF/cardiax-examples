@@ -1,0 +1,55 @@
+# ============================================================
+#  Nonlinear elasticity solver input
+#  Uniaxial traction test — 10x10x10 cube, NeoHookean material
+# ============================================================
+
+[problem]
+model = "nonlinear_elasticity"
+mesh  = "uniaxial_cube.xml"
+type  = "THREE_DIM"              # from <elasticity type="THREE_DIM">
+
+# ------------------------------------------------------------
+#  Material
+# ------------------------------------------------------------
+[material]
+name         = "NeoHookean"
+coefficients = [80.1938, 40094.0, 40094.0]
+
+#[material]
+#name         = "Guccione"
+#coefficients = [2.0, 8.0, 2.0, 4.0, 60.0, 1000.0] 
+
+# ------------------------------------------------------------
+#  Load stepping
+#     <ninc>10</ninc>
+# ------------------------------------------------------------
+[solver]
+n_increments = 10
+
+# PETSc options (same names as the command-line flags, minus the dash).
+# Command-line flags override these.
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+ksp_rtol = 1e-8
+
+# ------------------------------------------------------------
+#  Neumann (traction) load, applied on a marked surface.
+#  In the XML all 121 nodes of marker 10 carry the same traction
+#  (10, 0, 0); here it is one entry by marker + traction vector.
+#     <neumann><node marker="10" t0="10" t1="0" t2="0"/></neumann>
+#
+#  NOTE: prescribed (Dirichlet) displacement — the fixed x=0 face
+#  and the rigid-body anchor — stays in the mesh XML, since it is
+#  defined by individual node ids.
+# ------------------------------------------------------------
+[[neumann]]
+marker = 10
+t      = [50.0, 0.0, 0.0]   # traction vector (t0, t1, t2)
+
+# ------------------------------------------------------------
+#  Output
+# ------------------------------------------------------------
+[output]
+filename = "output_uniaxial_cube2"
+format   = "hdf5"       # hdf5 (+xdmf) | vtk

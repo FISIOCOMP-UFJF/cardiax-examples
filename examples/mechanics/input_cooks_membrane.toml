@@ -1,0 +1,60 @@
+# ============================================================
+#  Nonlinear elasticity solver input
+#  Cook's membrane — NeoHookean material, Neumann (traction) load
+# ============================================================
+
+[problem]
+model = "nonlinear_elasticity"
+mesh  = "cooks_membrane_3d_n10.xml"
+type  = "THREE_DIM"
+
+# ------------------------------------------------------------
+#  Material
+#  (from <parameters>: NeoHookean + 3 coefficients)
+#     <material>NeoHookean</material>
+#     <coefficients>80.1938, 400942.0, 400942.0</coefficients>
+# ------------------------------------------------------------
+[material]
+name         = "NeoHookean"
+coefficients = [80.1938, 400942.0, 400942.0]
+
+# ------------------------------------------------------------
+#  Load stepping
+#     <ninc>10</ninc>
+# ------------------------------------------------------------
+[solver]
+n_increments = 10
+
+# PETSc options (same names as the command-line flags, minus the dash).
+# Command-line flags override these.
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+ksp_rtol = 1e-8
+
+# ------------------------------------------------------------
+#  Boundary conditions / loads
+#
+#  This problem uses a Neumann (traction) load, applied on a marked
+#  surface. The marker + node tagging stay in the mesh XML:
+#     <neumann><node marker="10" t0="0.0" t1="6.25" t2="0.0"/></neumann>
+#  Prescribed displacement (the fixed face) also stays in the XML,
+#  since it is defined by individual node ids.
+#
+#  There is no pressure load in this problem, so no [[pressure]] block.
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+#  Neumann (traction) load, applied on a marked surface.
+#     <neumann><node marker="10" t0="0.0" t1="6.25" t2="0.0"/></neumann>
+# ------------------------------------------------------------
+[[neumann]]
+marker = 10
+t      = [0.0, 6.25, 0.0]   # traction vector (t0, t1, t2)
+
+# ------------------------------------------------------------
+#  Output
+# ------------------------------------------------------------
+[output]
+filename = "output_cooks_membrane"
+format   = "hdf5"       # hdf5 (+xdmf) | vtk
