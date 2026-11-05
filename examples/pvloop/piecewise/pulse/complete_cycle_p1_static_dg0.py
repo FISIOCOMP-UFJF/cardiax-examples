@@ -1,3 +1,11 @@
+# complete_cycle_p1_static.py com FIBRAS DG0 (uma por celula) no lugar de Quadrature_6.
+# Mesma malha do pulse_examples (a pasta geometry e copiada, so as fibras sao refeitas),
+# prestress recalculado (as fibras entram no material passivo). Quase-estatico como o
+# original: StaticProblem, sem Viscous e sem amortecedor no epicardio.
+# Rodar no fenicsx-env, de dentro desta pasta:  python complete_cycle_p1_static_dg0.py
+import sys
+from pathlib import Path as _P
+sys.path.insert(0, str(_P.home() / "Documentos/pulse_examples"))   # animation.py
 
 # --- PATCH DEFINITIVO PARA MARCADORES UKB (UKBDict CORRIGIDO) ---
 import pulse
@@ -101,7 +109,9 @@ class MPIFilter(logging.Filter):
         return 1 if self.comm.rank == 0 else 0
 
 
-outdir = Path("results_biv_complete_cycle")
+outdir = Path("results_dg0")
+ORIG_GEODIR = Path.home() / "Documentos/pulse_examples/results_biv_complete_cycle/geometry"
+FIBER_SPACE = "DG_0"
 outdir.mkdir(parents=True, exist_ok=True)
 geodir = outdir / "geometry"
 
@@ -143,24 +153,14 @@ if MAX_STEPS > 0:
 # at intermediate points later on.
 
 if not (geodir / "geometry.bp").exists():
-    logger.info("Generating and processing geometry...")
-    mode = -1
-    std = 0
-    char_length = 10.0
-
-    geo = cardiac_geometries.mesh.ukb(
-        outdir=geodir,
-        comm=comm,
-        mode=mode,
-        std=std,
-        case="ED",
-        char_length_max=char_length,
-        char_length_min=char_length,
-        clipped=True,
-    )
-
-    # Rotate Mesh (Base Normal -> X-axis)
-    geo = geo.rotate(target_normal=[1.0, 0.0, 0.0], base_marker="BASE")
+    # Mesma malha e marcadores do pulse_examples: copia a pasta geometry (menos
+    # geometry.bp) e refaz so as fibras, agora em DG0.
+    logger.info(f"Copiando a geometria de {ORIG_GEODIR} e refazendo as fibras em {FIBER_SPACE}...")
+    if comm.rank == 0:
+        shutil.copytree(ORIG_GEODIR, geodir, ignore=shutil.ignore_patterns("geometry.bp"),
+                        dirs_exist_ok=True)
+    comm.barrier()
+    geo = cardiac_geometries.geometry.Geometry.from_folder(comm=comm, folder=ORIG_GEODIR)
 
     fiber_angles = dict(
         alpha_endo_lv=60,
@@ -173,34 +173,28 @@ if not (geodir / "geometry.bp").exists():
         beta_epi_rv=20,
     )
 
-    # Generate Fibers (LDRB)
+    # Generate Fibers (LDRB), DG0
     system = ldrb.dolfinx_ldrb(
         mesh=geo.mesh,
         ffun=geo.ffun,
         markers=cardiac_geometries.mesh.transform_markers(geo.markers, clipped=True),
         **fiber_angles,
-        fiber_space="Quadrature_6",
+        fiber_space=FIBER_SPACE,
     )
 
     # Additional Vectors for Analysis in DG 1 Space for computing stress/strain later
-    fiber_space = "DG_1"
     system_fibers = ldrb.dolfinx_ldrb(
         mesh=geo.mesh,
         ffun=geo.ffun,
         markers=cardiac_geometries.mesh.transform_markers(geo.markers, clipped=True),
         **fiber_angles,
-        fiber_space=fiber_space,
+        fiber_space="DG_1",
     )
-
-    # Save Everything
     additional_data = {
         "f0_DG_1": system_fibers.f0,
         "s0_DG_1": system_fibers.s0,
         "n0_DG_1": system_fibers.n0,
     }
-
-    if (geodir / "geometry.bp").exists():
-        shutil.rmtree(geodir / "geometry.bp")
 
     cardiac_geometries.geometry.save_geometry(
         path=geodir / "geometry.bp",
@@ -457,7 +451,7 @@ def setup_problem(geometry, f0, s0, material_params):
         material=material,
         active=active_model,
         compressibility=pulse.Compressible(),
-        viscoelasticity=pulse.Viscous(),
+        # QUASE-ESTATICO: sem termo viscoso (so age na taxa de deformacao)
     )
 
     alpha_epi = pulse.Variable(
@@ -480,7 +474,8 @@ def setup_problem(geometry, f0, s0, material_params):
         value=beta_epi, marker=geometry.markers["EPI"][0], damping=True,
     )
 
-    robin = [robin_epi, robin_base, damping_epi]
+    # QUASE-ESTATICO: sem o amortecedor do epicardio (age na velocidade)
+    robin = [robin_epi, robin_base]
 
     # Dirichlet BC: Sliding Base (ux=0)
     def dirichlet_bc(V: dolfinx.fem.FunctionSpace):
@@ -627,7 +622,7 @@ bcs_forward = pulse.BoundaryConditions(robin=robin, dirichlet=(dirichlet_bc,))
 # also takes the place of an explicit inflation to end diastole, such as the
 # one in [](monolithic_3d0d_biv.py).
 
-problem = pulse.problem.DynamicProblem(
+problem = pulse.problem.StaticProblem(
     model=model,
     geometry=geometry,
     bcs=bcs_forward,
@@ -638,8 +633,6 @@ problem = pulse.problem.DynamicProblem(
     parameters={
         "mesh_unit": mesh_unit,
         "u_space": "P_1",
-        "rho": pulse.Variable(1e3, "kg/m^3"),
-        "dt": pulse.Variable(DT, "s"),
     },
 )
 controller = cycle.CycleController(problem, params)
@@ -674,7 +667,7 @@ history: dict[str, list[float]] = {
 recorder = animation.FrameRecorder(
     geometry.mesh, every=5, enabled=not IN_CI and comm.size == 1, up=up,
 )
-vtx = dolfinx.io.VTXWriter(comm, outdir / "displacement_p1.bp", [problem.u], engine="BP4")
+vtx = dolfinx.io.VTXWriter(comm, outdir / "displacement_p1_static_dg0.bp", [problem.u], engine="BP4")
 
 logger.info(f"Running {max_steps} steps of {DT * 1e3:.0f} ms...")
 t = 0.0
@@ -705,13 +698,13 @@ logger.info("Simulation complete.")
 # the phase each step was solved under) and the recorded frames, and plot them.
 # The phase intervals of the left ventricle are shaded behind its traces.
 
-saved = recorder.save(outdir / "frames_p1.npz")
+saved = recorder.save(outdir / "frames_p1_static_dg0.npz")
 if saved is not None:
     logger.info(f"Saved {len(recorder.times)} frames of the moving geometry to {saved}")
 
 if comm.rank == 0:
     traces = {k: np.asarray(v) for k, v in history.items()}
-    np.savez(outdir / "traces_p1.npz", **traces)
+    np.savez(outdir / "traces_p1_static_dg0.npz", **traces)
 
     fig, axes = plt.subplots(2, 2, figsize=(11, 8), layout="constrained")
     ax_loop, ax_p, ax_v, ax_c = axes.flat
@@ -742,7 +735,7 @@ if comm.rank == 0:
     ax_c.legend(frameon=False)
     for axis in (ax_p, ax_v):
         animation._shade_phases(axis, traces["time"], traces["phase_LV"])
-    fig.savefig(outdir / "complete_cycle_p1.png", dpi=140)
+    fig.savefig(outdir / "complete_cycle_p1_static_dg0.png", dpi=140)
     pass  # plt.show()
 
     if not IN_CI:

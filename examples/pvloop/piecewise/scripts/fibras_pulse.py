@@ -28,8 +28,11 @@ import cardiac_geometries.geometry
 import pulse
 
 HERE = Path(__file__).resolve().parent
-RESULTS = Path("results_biv_complete_cycle")
-PRESTRESS = RESULTS / "prestress_biv_inverse_LV1000Pa_RV400Pa.bp"
+# Definidos em main() por --results (copia de piecewise_circulation/scripts/
+# fibras_pulse.py, so com os caminhos parametrizados). Com fibras DG0 no pulse ha
+# um ponto por celula, entao a "media" abaixo e a propria fibra da celula.
+RESULTS = None
+PRESTRESS = None
 
 
 def pulse_fibers():
@@ -76,11 +79,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("-i", "--input", default="malha_descarregada.xml")
     ap.add_argument("-o", "--output", default="malha_descarregada_ldrb.xml")
+    ap.add_argument("--results", required=True, help="pasta de resultados do pulse (geometry/, prestress)")
     args = ap.parse_args()
+    global RESULTS, PRESTRESS
+    RESULTS = Path(args.results)
+    PRESTRESS = RESULTS / "prestress_biv_inverse_LV1000Pa_RV400Pa.bp"
 
     cent_p, f_p, s_p, Xp = pulse_fibers()
 
-    txt = (HERE / args.input).read_text()
+    txt = Path(args.input).read_text()
     mesh_at = txt.index("<mesh")
     head, mesh = txt[:mesh_at], txt[mesh_at:]
     X = np.array([[float(a), float(b), float(c)] for a, b, c in
@@ -115,12 +122,12 @@ def main():
                       lambda mv: f"<{mv.group(1)}>{fmt(vecs[mv.group(1)][e])}</{mv.group(1)}>", m.group(0))
 
     block = re.sub(r'<element id="(\d+)">.*?</element>', elem_sub, mesh[a:b], flags=re.S)
-    (HERE / args.output).write_text(head + mesh[:a] + block + mesh[b:])
+    Path(args.output).write_text(head + mesh[:a] + block + mesh[b:])
 
     print(f"correspondencia: {len(idx)} celulas, distancia max {dist.max():.1e} m")
     print(f"angulo entre a fibra antiga (Bayer) e a do pulse (LDRB): mediana {np.median(ang):.1f} graus,"
           f" p90 {np.percentile(ang, 90):.1f}, max {ang.max():.1f}")
-    print(f"escrito {HERE / args.output}")
+    print(f"escrito {args.output}")
 
 
 if __name__ == "__main__":

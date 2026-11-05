@@ -35,9 +35,12 @@ import dolfinx
 import io4dolfinx
 
 HERE = Path(__file__).resolve().parent
-RESULTS = Path("results_biv_complete_cycle")
-PRESTRESS = RESULTS / "prestress_biv_inverse_LV1000Pa_RV400Pa.bp"
-XML_IN = HERE / "malha.xml"
+# Caminhos definidos em main() por --results / --xml-in (copia de
+# piecewise_circulation/scripts/unload_mesh.py, so com os caminhos parametrizados)
+RESULTS = None
+PRESTRESS = None
+XML_IN = None
+GEOMETRY_REF = None
 
 # a, a_f, a_s, a_fs, b, b_f, b_s, b_fs, (ativo), kappa  -- ordem do HolzapfelOgden do cardiax
 HO_COEFFS = "2280.0, 1685.0, 0.0, 0.0, 9.726, 15.779, 0.0, 0.0, 0, {kappa:.1f}"
@@ -53,6 +56,16 @@ def pulse_displacement():
     geo.mesh.geometry.x[:] *= 1e-3
     Y = geo.mesh.geometry.x.copy()
     idx = np.asarray(geo.mesh.geometry.input_global_indices)
+    if GEOMETRY_REF is not None:
+        # A geometry.bp desta pasta foi regravada (fibras novas) a partir da original,
+        # e os indices de entrada passaram a se referir a ordem dela, nao ao mesh.h5.
+        # Os nos sao os mesmos: casa por coordenada com a geometria original.
+        from scipy.spatial import cKDTree
+        ref = cardiac_geometries.geometry.Geometry.from_folder(comm=MPI.COMM_WORLD, folder=GEOMETRY_REF)
+        Yr = ref.mesh.geometry.x * 1e-3
+        dist, j = cKDTree(Yr).query(Y)
+        assert dist.max() < 1e-9 and len(set(j)) == len(j), f"nos nao casam ({dist.max():.1e} m)"
+        idx = np.asarray(ref.mesh.geometry.input_global_indices)[j]
     X = h5py.File(RESULTS / "geometry/mesh.h5", "r")["/Mesh/Mesh/geometry"][()] * 1e-3
 
     # rotacao rigida original -> girado (Kabsch), com correspondencia exata pelos indices
@@ -96,8 +109,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--kappa", type=float, default=5.0e5, help="kappa do HO [Pa]")
     ap.add_argument("-o", "--output", default="malha_descarregada.xml")
+    ap.add_argument("--results", required=True, help="pasta de resultados do pulse (geometry/, prestress)")
+    ap.add_argument("--xml-in", required=True, help="malha ED no formato do cardiax (malha.xml)")
+    ap.add_argument("--geometry-ref", default=None,
+                    help="pasta geometry original, quando a de --results foi regravada")
     args = ap.parse_args()
-    xml_out = HERE / args.output
+    global RESULTS, PRESTRESS, XML_IN, GEOMETRY_REF
+    GEOMETRY_REF = Path(args.geometry_ref) if args.geometry_ref else None
+    RESULTS = Path(args.results)
+    PRESTRESS = RESULTS / "prestress_biv_inverse_LV1000Pa_RV400Pa.bp"
+    XML_IN = Path(args.xml_in)
+    xml_out = Path(args.output)
 
     X, u, R = pulse_displacement()
     txt = XML_IN.read_text()
