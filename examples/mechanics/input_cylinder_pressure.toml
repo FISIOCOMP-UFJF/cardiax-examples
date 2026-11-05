@@ -1,0 +1,34 @@
+# ============================================================
+#  Nonlinear elasticity — thick-walled cylinder under pressure
+#  Benchmark: internal pressure, incompressible NeoHookean
+#  Mesh generation:
+#  gen_cylinder_pressure.py --nr 3 --ntheta 24 --nz 3 --pressure 5 
+# ============================================================
+
+[problem]
+model = "nonlinear_elasticity"
+mesh  = "cylinder_pressure.xml"
+type  = "THREE_DIM"
+
+[material]
+name         = "NeoHookean"
+coefficients = [80.1938, 40094.0, 40094.0]
+
+[solver]
+n_increments = 40
+
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+ksp_rtol = 1e-8
+
+# Internal pressure applied on the inner surface (marker 10).
+# The marker and its boundary quads stay in the mesh XML; only the
+# pressure value lives here.
+[[pressure]]
+marker = 10
+value  = 15.0
+
+[output]
+filename = "output_cylinder_pressure"
+format   = "hdf5"

@@ -1,0 +1,31 @@
+# ============================================================
+#  Nonlinear elasticity — torsion of a prismatic bar
+#  Benchmark: large-rotation twist, NeoHookean
+#  Mesh generation: 
+#  gen_torsion_bar.py --nx 4 --ny 4 --nz 20 --angle 40 --ninc 60
+# ============================================================
+
+[problem]
+model = "nonlinear_elasticity"
+mesh  = "torsion_bar.xml"
+type  = "THREE_DIM"
+
+[material]
+name         = "NeoHookean"
+coefficients = [80.1938, 40094.0, 40094.0]
+
+[solver]
+n_increments = 40
+
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+ksp_rtol = 1e-8
+
+# Torsion is fully displacement-driven: the free-end rotation and the
+# clamped end are prescribed node-by-node in the mesh XML
+# (<prescribed_displacement>). There is no pressure or Neumann load here.
+
+[output]
+filename = "output_torsion_bar"
+format   = "hdf5"
