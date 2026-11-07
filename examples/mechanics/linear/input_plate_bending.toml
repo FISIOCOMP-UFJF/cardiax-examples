@@ -1,0 +1,34 @@
+# ===================================================================
+#  LINEAR ELASTICITY BENCHMARK 6 — SQUARE PLATE BENDING
+# ===================================================================
+#  Square plate (side A, thickness h) under uniform transverse
+#  pressure q on the top face (tz = -q), edges clamped.
+#    A = 1.0, h = 0.05, E = 10000, nu = 0.3, q = 1.0
+#    D = E h^3 / (12 (1-nu^2))
+#    w_center = alpha * q A^4 / D   (clamped: alpha ~ 0.00126)
+#  NOTE: linear hexes underpredict thin-plate deflection (shear
+#  locking); refine in-plane / use >=2 elems through h for accuracy.
+
+[problem]
+model        = "elasticity"
+mesh         = "plate_bending.xml"
+problem_type = "THREE_DIM"      # THREE_DIM | PLANE_STRAIN | PLANE_STRESS
+
+[material]
+young   = 10000.0
+poisson = 0.3
+
+# Neumann: uniform pressure on the top face (marker 10), traction in -z
+[[neumann]]
+marker = 10
+t = [0.0, 0.0, -1.0]
+
+[solver]
+penalty = 1.0e10
+
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+
+[output]
+filename = "output_plate_bending"

@@ -1,0 +1,28 @@
+# ===================================================================
+#  LINEAR ELASTICITY BENCHMARK 1 — CANTILEVER BEAM (end shear)
+# ===================================================================
+
+[problem]
+model = "elasticity"
+mesh  = "cantilever.xml" 
+problem_type = "THREE_DIM"  # THREE_DIM | PLANE_STRAIN | PLANE_STRESS
+
+[material]
+young   = 1000.0
+poisson = 0.3
+
+# Neumann: one entry per boundary marker, traction (t0,t1,t2)
+[[neumann]]
+marker = 10
+t = [0.0, -1.0, 0.0]
+
+[solver]
+penalty = 1.0e10
+
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+
+[output]
+filename = "output_cantilever"
+

@@ -1,0 +1,162 @@
+<!--
+  ===================================================================
+   LINEAR ELASTICITY BENCHMARK 5 — CONSTANT-STRESS PATCH TEST
+  ===================================================================
+
+   PROBLEM DEFINITION
+     The fundamental FE verification test. A unit cube is meshed with
+     2x2x2 hexahedra and its single interior node is deliberately
+     perturbed off the regular grid. A linear displacement field
+         u = (a*x, b*y, c*z)
+     is imposed on EVERY boundary node. A correct element must then
+     reproduce a CONSTANT strain/stress state throughout, regardless
+     of the interior distortion.
+       E = 1.0, nu = 0.3
+       a = 0.01 (strain_xx), b = 0.0 (strain_yy), c = 0.0 (strain_zz)
+       interior node perturbed by 0.1*h
+
+   BOUNDARY CONDITIONS
+     all boundary nodes : prescribed u = (a*x, b*y, c*z)
+
+   EXACT SOLUTION  (constant everywhere)
+     Lame parameters:  lambda = 0.576923,  mu = 0.384615
+     Strain:  eps_xx=0.01  eps_yy=0  eps_zz=0
+     Stress:  sig_xx=0.0134615  sig_yy=0.00576923  sig_zz=0.00576923
+     PASS criteria (to machine precision):
+       - interior node displaces to u=(a*x,b*y,c*z) at its position
+       - every element reports the constant stress above
+  -->
+<?xml version="1.0"?>
+<elasticity type="THREE_DIM">
+  <parameters>
+    <young>1.0</young>
+    <poisson>0.3</poisson>
+  </parameters>
+
+  <prescribed_displacement>
+    <node id="0" direction="0" value="0.00000000" />
+    <node id="0" direction="1" value="0.00000000" />
+    <node id="0" direction="2" value="0.00000000" />
+    <node id="1" direction="0" value="0.00500000" />
+    <node id="1" direction="1" value="0.00000000" />
+    <node id="1" direction="2" value="0.00000000" />
+    <node id="2" direction="0" value="0.01000000" />
+    <node id="2" direction="1" value="0.00000000" />
+    <node id="2" direction="2" value="0.00000000" />
+    <node id="3" direction="0" value="0.00000000" />
+    <node id="3" direction="1" value="0.00000000" />
+    <node id="3" direction="2" value="0.00000000" />
+    <node id="4" direction="0" value="0.00500000" />
+    <node id="4" direction="1" value="0.00000000" />
+    <node id="4" direction="2" value="0.00000000" />
+    <node id="5" direction="0" value="0.01000000" />
+    <node id="5" direction="1" value="0.00000000" />
+    <node id="5" direction="2" value="0.00000000" />
+    <node id="6" direction="0" value="0.00000000" />
+    <node id="6" direction="1" value="0.00000000" />
+    <node id="6" direction="2" value="0.00000000" />
+    <node id="7" direction="0" value="0.00500000" />
+    <node id="7" direction="1" value="0.00000000" />
+    <node id="7" direction="2" value="0.00000000" />
+    <node id="8" direction="0" value="0.01000000" />
+    <node id="8" direction="1" value="0.00000000" />
+    <node id="8" direction="2" value="0.00000000" />
+    <node id="9" direction="0" value="0.00000000" />
+    <node id="9" direction="1" value="0.00000000" />
+    <node id="9" direction="2" value="0.00000000" />
+    <node id="10" direction="0" value="0.00500000" />
+    <node id="10" direction="1" value="0.00000000" />
+    <node id="10" direction="2" value="0.00000000" />
+    <node id="11" direction="0" value="0.01000000" />
+    <node id="11" direction="1" value="0.00000000" />
+    <node id="11" direction="2" value="0.00000000" />
+    <node id="12" direction="0" value="0.00000000" />
+    <node id="12" direction="1" value="0.00000000" />
+    <node id="12" direction="2" value="0.00000000" />
+    <node id="14" direction="0" value="0.01000000" />
+    <node id="14" direction="1" value="0.00000000" />
+    <node id="14" direction="2" value="0.00000000" />
+    <node id="15" direction="0" value="0.00000000" />
+    <node id="15" direction="1" value="0.00000000" />
+    <node id="15" direction="2" value="0.00000000" />
+    <node id="16" direction="0" value="0.00500000" />
+    <node id="16" direction="1" value="0.00000000" />
+    <node id="16" direction="2" value="0.00000000" />
+    <node id="17" direction="0" value="0.01000000" />
+    <node id="17" direction="1" value="0.00000000" />
+    <node id="17" direction="2" value="0.00000000" />
+    <node id="18" direction="0" value="0.00000000" />
+    <node id="18" direction="1" value="0.00000000" />
+    <node id="18" direction="2" value="0.00000000" />
+    <node id="19" direction="0" value="0.00500000" />
+    <node id="19" direction="1" value="0.00000000" />
+    <node id="19" direction="2" value="0.00000000" />
+    <node id="20" direction="0" value="0.01000000" />
+    <node id="20" direction="1" value="0.00000000" />
+    <node id="20" direction="2" value="0.00000000" />
+    <node id="21" direction="0" value="0.00000000" />
+    <node id="21" direction="1" value="0.00000000" />
+    <node id="21" direction="2" value="0.00000000" />
+    <node id="22" direction="0" value="0.00500000" />
+    <node id="22" direction="1" value="0.00000000" />
+    <node id="22" direction="2" value="0.00000000" />
+    <node id="23" direction="0" value="0.01000000" />
+    <node id="23" direction="1" value="0.00000000" />
+    <node id="23" direction="2" value="0.00000000" />
+    <node id="24" direction="0" value="0.00000000" />
+    <node id="24" direction="1" value="0.00000000" />
+    <node id="24" direction="2" value="0.00000000" />
+    <node id="25" direction="0" value="0.00500000" />
+    <node id="25" direction="1" value="0.00000000" />
+    <node id="25" direction="2" value="0.00000000" />
+    <node id="26" direction="0" value="0.01000000" />
+    <node id="26" direction="1" value="0.00000000" />
+    <node id="26" direction="2" value="0.00000000" />
+  </prescribed_displacement>
+</elasticity>
+
+<mesh celltype="hexahedron" dim="3">
+  <nodes size="27">
+    <node id="0" x="0.00000000" y="0.00000000" z="0.00000000" />
+    <node id="1" x="0.50000000" y="0.00000000" z="0.00000000" />
+    <node id="2" x="1.00000000" y="0.00000000" z="0.00000000" />
+    <node id="3" x="0.00000000" y="0.50000000" z="0.00000000" />
+    <node id="4" x="0.50000000" y="0.50000000" z="0.00000000" />
+    <node id="5" x="1.00000000" y="0.50000000" z="0.00000000" />
+    <node id="6" x="0.00000000" y="1.00000000" z="0.00000000" />
+    <node id="7" x="0.50000000" y="1.00000000" z="0.00000000" />
+    <node id="8" x="1.00000000" y="1.00000000" z="0.00000000" />
+    <node id="9" x="0.00000000" y="0.00000000" z="0.50000000" />
+    <node id="10" x="0.50000000" y="0.00000000" z="0.50000000" />
+    <node id="11" x="1.00000000" y="0.00000000" z="0.50000000" />
+    <node id="12" x="0.00000000" y="0.50000000" z="0.50000000" />
+    <node id="13" x="0.52739560" y="0.49388784" z="0.53585979" />
+    <node id="14" x="1.00000000" y="0.50000000" z="0.50000000" />
+    <node id="15" x="0.00000000" y="1.00000000" z="0.50000000" />
+    <node id="16" x="0.50000000" y="1.00000000" z="0.50000000" />
+    <node id="17" x="1.00000000" y="1.00000000" z="0.50000000" />
+    <node id="18" x="0.00000000" y="0.00000000" z="1.00000000" />
+    <node id="19" x="0.50000000" y="0.00000000" z="1.00000000" />
+    <node id="20" x="1.00000000" y="0.00000000" z="1.00000000" />
+    <node id="21" x="0.00000000" y="0.50000000" z="1.00000000" />
+    <node id="22" x="0.50000000" y="0.50000000" z="1.00000000" />
+    <node id="23" x="1.00000000" y="0.50000000" z="1.00000000" />
+    <node id="24" x="0.00000000" y="1.00000000" z="1.00000000" />
+    <node id="25" x="0.50000000" y="1.00000000" z="1.00000000" />
+    <node id="26" x="1.00000000" y="1.00000000" z="1.00000000" />
+  </nodes>
+
+  <elements size="8">
+    <element id="0" v0="0" v1="1" v2="4" v3="3" v4="9" v5="10" v6="13" v7="12" />
+    <element id="1" v0="1" v1="2" v2="5" v3="4" v4="10" v5="11" v6="14" v7="13" />
+    <element id="2" v0="3" v1="4" v2="7" v3="6" v4="12" v5="13" v6="16" v7="15" />
+    <element id="3" v0="4" v1="5" v2="8" v3="7" v4="13" v5="14" v6="17" v7="16" />
+    <element id="4" v0="9" v1="10" v2="13" v3="12" v4="18" v5="19" v6="22" v7="21" />
+    <element id="5" v0="10" v1="11" v2="14" v3="13" v4="19" v5="20" v6="23" v7="22" />
+    <element id="6" v0="12" v1="13" v2="16" v3="15" v4="21" v5="22" v6="25" v7="24" />
+    <element id="7" v0="13" v1="14" v2="17" v3="16" v4="22" v5="23" v6="26" v7="25" />
+  </elements>
+
+  <boundary celltype="quadrilateral" dim="2">
+  </boundary>
+</mesh>

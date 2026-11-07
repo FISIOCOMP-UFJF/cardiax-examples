@@ -1,0 +1,29 @@
+# ===================================================================
+#  LINEAR ELASTICITY BENCHMARK 5 — CONSTANT-STRESS PATCH TEST
+# ===================================================================
+#  Unit cube, 2x2x2 hexes, interior node perturbed off-grid.
+#  A linear field u = (a*x, b*y, c*z) is imposed on EVERY boundary
+#  node (a=0.01, b=c=0). A correct element reproduces a CONSTANT
+#  stress state regardless of the interior distortion.
+#    E = 1.0, nu = 0.3
+#    Exact: eps_xx=0.01, sig_xx=0.0134615, sig_yy=sig_zz=0.00576923
+#  No Neumann: all boundary DOFs are prescribed (see mesh XML).
+
+[problem]
+model        = "elasticity"
+mesh         = "patch_test.xml"
+problem_type = "THREE_DIM"      # THREE_DIM | PLANE_STRAIN | PLANE_STRESS
+
+[material]
+young   = 1.0
+poisson = 0.3
+
+[solver]
+penalty = 1.0e10
+
+[solver.petsc]
+ksp_type = "preonly"
+pc_type  = "lu"
+
+[output]
+filename = "output_patch_test"
