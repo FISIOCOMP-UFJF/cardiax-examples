@@ -31,7 +31,7 @@ n_increments = 10
 [solver.petsc]
 ksp_type = "preonly"
 pc_type  = "lu"
-ksp_rtol = 1e-8
+#ksp_rtol = 1e-8
 
 # ------------------------------------------------------------
 #  Neumann (traction) load, applied on a marked surface.
