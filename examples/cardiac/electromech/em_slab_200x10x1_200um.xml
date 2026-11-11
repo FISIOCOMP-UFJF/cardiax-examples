@@ -1,6 +1,6 @@
 <!--
 Run with:
-  OMP_NUM_THREADS=8 electromech -f em_slab_200x10x1_200um.xml -c NP -t 100.0 -dt 0.01 -dt_mech 1.0 -ksp_type preonly -pc_type lu
+  OMP_NUM_THREADS=8 electromech -f em_slab_200x10x1_200um.xml -c NP -t 100.0 -dt_ephy 0.01 -dt_mech 1.0 -ksp_type preonly -pc_type lu
 -->>
 
 <?xml version="1.0"?>

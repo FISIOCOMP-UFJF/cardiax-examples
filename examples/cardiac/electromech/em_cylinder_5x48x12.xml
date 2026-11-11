@@ -1,3 +1,8 @@
+<!--
+Run with:
+OMP_NUM_THREADS=8 electromech -f em_cylinder_5x48x12.xml -c NP -t 100.0 -dt_ephy 0.01 -dt_mech 0.2 -dt_out 1.0 -ksp_type preonly -pc_type lu
+-->
+
 <?xml version="1.0"?>
 <elasticity type="THREE_DIM">
   <parameters>
